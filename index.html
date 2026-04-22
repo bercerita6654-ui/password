@@ -328,6 +328,10 @@
                         <input type="text" id="edit-title" required
                             class="w-full bg-white/60 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-white">
                     </div>
+                    <!-- Preset Pilihan Situs (Icons) di Modal Edit -->
+                    <div class="flex flex-wrap gap-2 pt-2" id="edit-preset-container">
+                        <!-- Dirender via JS -->
+                    </div>
                 </div>
 
                 <div class="space-y-1.5 pt-2">
@@ -431,8 +435,10 @@
         const contentArea = document.getElementById('content-area');
         const tabsContainer = document.getElementById('tabs-container');
         const presetContainer = document.getElementById('preset-container');
+        const editPresetContainer = document.getElementById('edit-preset-container');
         const searchInput = document.getElementById('search-input');
         const titleInput = document.getElementById('add-title');
+        const editTitleInput = document.getElementById('edit-title');
         const addDateInput = document.getElementById('add-date');
         const editDateInput = document.getElementById('edit-date');
         
@@ -440,6 +446,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateThemeIcon();
             renderPresets();
+            renderEditPresets();
             feather.replace();
             addDateInput.value = new Date().toISOString().split('T')[0];
         });
@@ -503,7 +510,7 @@
             return 'globe';
         }
 
-        // --- Render Functions ---
+        // --- Render Functions (ADD FORM) ---
         function renderPresets() {
             presetContainer.innerHTML = presets.map(preset => `
                 <button type="button" onclick="selectPreset('${preset.name}')" data-name="${preset.name}" class="preset-btn group relative flex items-center justify-center w-[46px] h-[46px] rounded-xl border transition-all duration-300 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:-translate-y-1 hover:shadow-lg">
@@ -514,7 +521,7 @@
                     </span>
                 </button>
             `).join('');
-            feather.replace();
+            if (typeof feather !== 'undefined') feather.replace();
         }
 
         function selectPreset(presetName) {
@@ -540,6 +547,44 @@
             updatePresetUI(e.target.value);
         });
 
+        // --- Render Functions (EDIT FORM) ---
+        function renderEditPresets() {
+            editPresetContainer.innerHTML = presets.map(preset => `
+                <button type="button" onclick="selectEditPreset('${preset.name}')" data-edit-name="${preset.name}" class="edit-preset-btn group relative flex items-center justify-center w-[46px] h-[46px] rounded-xl border transition-all duration-300 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:border-amber-400 dark:hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:-translate-y-1 hover:shadow-lg">
+                    <i data-feather="${preset.icon}" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <!-- Tooltip -->
+                    <span class="absolute -top-10 scale-0 opacity-0 transition-all duration-200 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 group-hover:scale-100 group-hover:opacity-100 whitespace-nowrap border border-slate-700 z-20 shadow-xl pointer-events-none">
+                        ${preset.name}
+                    </span>
+                </button>
+            `).join('');
+            if (typeof feather !== 'undefined') feather.replace();
+        }
+
+        function selectEditPreset(presetName) {
+            editTitleInput.value = presetName;
+            updateEditPresetUI(presetName);
+        }
+
+        function updateEditPresetUI(val) {
+            const lowerVal = val.toLowerCase();
+            document.querySelectorAll('.edit-preset-btn').forEach(btn => {
+                const name = btn.dataset.editName.toLowerCase();
+                if (name === lowerVal) {
+                    btn.classList.remove('bg-white', 'dark:bg-slate-800/50', 'border-slate-200', 'dark:border-slate-700/50', 'text-slate-500', 'dark:text-slate-400');
+                    btn.classList.add('bg-amber-100', 'dark:bg-amber-500/20', 'border-amber-500', 'text-amber-600', 'dark:text-amber-400', 'shadow-[0_0_15px_rgba(245,158,11,0.2)]', '-translate-y-1');
+                } else {
+                    btn.classList.add('bg-white', 'dark:bg-slate-800/50', 'border-slate-200', 'dark:border-slate-700/50', 'text-slate-500', 'dark:text-slate-400');
+                    btn.classList.remove('bg-amber-100', 'dark:bg-amber-500/20', 'border-amber-500', 'text-amber-600', 'dark:text-amber-400', 'shadow-[0_0_15px_rgba(245,158,11,0.2)]', '-translate-y-1');
+                }
+            });
+        }
+
+        editTitleInput.addEventListener('input', (e) => {
+            updateEditPresetUI(e.target.value);
+        });
+
+        // --- Render List Passwords ---
         function renderPasswords(isLoading = false) {
             if (isLoading) {
                 tabsContainer.classList.add('hidden');
@@ -878,6 +923,7 @@
             
             editCategory = item.category || 'Pribadi';
             updateEditCategoryUI();
+            updateEditPresetUI(item.title); // Update state logo di menu edit
             
             editModal.classList.remove('hidden');
         }
