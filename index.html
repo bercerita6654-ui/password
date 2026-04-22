@@ -193,12 +193,82 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT DATA -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-600 w-full max-w-md animate-fade-in-down">
+            <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2 border-b border-slate-700 pb-3">
+                <i data-feather="edit-2" class="text-amber-400 w-5 h-5"></i> Update Kredensial
+            </h2>
+            
+            <form id="edit-form" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Kategori Akun</label>
+                    <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+                        <button type="button" data-edit-cat="Pribadi" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-amber-600 text-white shadow">
+                            <i data-feather="home" class="w-4 h-4"></i> Pribadi
+                        </button>
+                        <button type="button" data-edit-cat="Kantor" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200">
+                            <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Nama Akses</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="lock" class="text-slate-400 w-4 h-4"></i>
+                        </div>
+                        <input type="text" id="edit-title" required
+                            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Nama Pengguna / Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="user" class="text-slate-400 w-4 h-4"></i>
+                        </div>
+                        <input type="text" id="edit-username" required
+                            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Kata Sandi</label>
+                    <div class="relative flex gap-2">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="key" class="text-slate-400 w-4 h-4"></i>
+                            </div>
+                            <input type="text" id="edit-password" required
+                                class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                        </div>
+                        <button type="button" id="btn-edit-generate-pw" title="Buat Sandi Acak Baru"
+                            class="bg-slate-700 hover:bg-slate-600 text-amber-300 p-2.5 rounded-lg border border-slate-600 transition-colors">
+                            <i data-feather="refresh-cw" class="w-[18px] h-[18px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-lg transition-colors">Batal</button>
+                    <button type="submit" id="btn-update" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-amber-500/20 transition-all">Simpan Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- JavaScript Logic -->
     <script>
         // --- State Application ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPFEJw7QXu4M9oW6uNs6qvr2NrWUHrC6_eBqi3XNmFDB0zX1iREyjEiF9YeGEqgcdy/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEiC2MbXXcVv0BGZOAE712lqlsAegYOQTwJOy3ROrEfaSVZASRZRw32_kdWuWA7Ubn/exec';
         let passwords = [];
         let category = 'Pribadi';
+        let editCategory = 'Pribadi'; // State for edit modal
         let activeTab = 'Semua';
         let revealedIds = new Set();
         let searchTerm = '';
@@ -211,6 +281,8 @@
         const dashboardView = document.getElementById('dashboard-view');
         const loginForm = document.getElementById('login-form');
         const addForm = document.getElementById('add-form');
+        const editForm = document.getElementById('edit-form');
+        const editModal = document.getElementById('edit-modal');
         const contentArea = document.getElementById('content-area');
         const tabsContainer = document.getElementById('tabs-container');
         const presetContainer = document.getElementById('preset-container');
@@ -242,7 +314,6 @@
         }
 
         function generateUUID() {
-            // Fallback sederhana jika crypto.randomUUID tidak ada
             if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -250,19 +321,12 @@
             });
         }
 
-        // Fungsi format tanggal baru
         function formatTanggal(dateString) {
             if (!dateString) return '-';
             const date = new Date(dateString);
-            
-            // Mengembalikan string aslinya jika bukan tanggal valid
             if (isNaN(date.getTime())) return dateString; 
-            
-            // Format ke 03 Mei 2023
             return date.toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
+                day: '2-digit', month: 'long', year: 'numeric'
             });
         }
 
@@ -277,7 +341,6 @@
 
         function selectPreset(preset) {
             titleInput.value = preset;
-            // Update UI preset
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 if (btn.innerText.trim() === preset) {
                     btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-indigo-500/20 border-indigo-500 text-indigo-300";
@@ -287,7 +350,6 @@
             });
         }
 
-        // Event listener saat mengetik manual di title
         titleInput.addEventListener('input', () => {
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300";
@@ -357,9 +419,14 @@
                                 </div>
                                 <p class="text-xs text-slate-500 mt-0.5">Ditambahkan: ${formatTanggal(item.createdAt)}</p>
                             </div>
-                            <button onclick="handleDelete('${item.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus">
-                                <i data-feather="trash-2" class="w-[18px] h-[18px]"></i>
-                            </button>
+                            <div class="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                <button onclick="openEditModal('${item.id}')" class="text-slate-500 hover:text-amber-400 p-1 rounded transition-colors" title="Edit">
+                                    <i data-feather="edit-2" class="w-[18px] h-[18px]"></i>
+                                </button>
+                                <button onclick="handleDelete('${item.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition-colors" title="Hapus">
+                                    <i data-feather="trash-2" class="w-[18px] h-[18px]"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="space-y-3">
@@ -395,7 +462,7 @@
             });
             html += '</div>';
             contentArea.innerHTML = html;
-            feather.replace(); // Render ulang ikon di dalam list
+            feather.replace(); // Render ulang ikon
         }
 
         // --- Action Handlers ---
@@ -423,8 +490,8 @@
                     showToast("Login berhasil!");
                     loginView.classList.add('hidden');
                     dashboardView.classList.remove('hidden');
-                    document.getElementById('login-password').value = ''; // clear
-                    fetchData(); // Load data setelah login
+                    document.getElementById('login-password').value = ''; 
+                    fetchData(); 
                 } else {
                     showToast(result.message || "Username atau password salah!");
                 }
@@ -446,7 +513,7 @@
             showToast("Berhasil logout.");
         });
 
-        // Fetch Data dari Google Sheets
+        // Fetch Data
         async function fetchData() {
             renderPasswords(true);
             try {
@@ -462,63 +529,81 @@
             }
         }
 
-        // Ganti Kategori Form
+        // Ganti Kategori Form (Tambah)
         document.querySelectorAll('.cat-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // Update styling
                 document.querySelectorAll('.cat-btn').forEach(b => {
                     b.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200";
                 });
                 const clickedBtn = e.currentTarget;
                 clickedBtn.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-indigo-600 text-white shadow";
-                
                 category = clickedBtn.dataset.cat;
             });
         });
 
-        // Generate Password
+        // Ganti Kategori Form (Edit)
+        document.querySelectorAll('.edit-cat-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const clickedBtn = e.currentTarget;
+                editCategory = clickedBtn.dataset.editCat;
+                updateEditCategoryUI();
+            });
+        });
+
+        function updateEditCategoryUI() {
+            document.querySelectorAll('.edit-cat-btn').forEach(b => {
+                if(b.dataset.editCat === editCategory) {
+                    b.className = "edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-amber-600 text-white shadow";
+                } else {
+                    b.className = "edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200";
+                }
+            });
+        }
+
+        // Generate Password (Tambah)
         document.getElementById('btn-generate-pw').addEventListener('click', () => {
+            document.getElementById('add-password').value = createRandomPassword();
+            showToast("Kata sandi kuat berhasil dibuat!");
+        });
+
+        // Generate Password (Edit)
+        document.getElementById('btn-edit-generate-pw').addEventListener('click', () => {
+            document.getElementById('edit-password').value = createRandomPassword();
+            showToast("Kata sandi kuat berhasil dibuat!");
+        });
+
+        function createRandomPassword() {
             const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
             let newPassword = "";
             for (let i = 0; i < 16; i++) {
                 newPassword += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            document.getElementById('add-password').value = newPassword;
-            showToast("Kata sandi kuat berhasil dibuat!");
-        });
+            return newPassword;
+        }
 
         // Submit Form Tambah
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const titleVal = titleInput.value;
-            const userVal = document.getElementById('add-username').value;
-            const passVal = document.getElementById('add-password').value;
-
             const btnSave = document.getElementById('btn-save');
             btnSave.disabled = true;
             btnSave.innerText = "Menyimpan...";
 
             const newEntry = {
                 id: generateUUID(),
-                title: titleVal,
-                username: userVal,
-                password: passVal,
+                title: titleInput.value,
+                username: document.getElementById('add-username').value,
+                password: document.getElementById('add-password').value,
                 category: category,
-                // Gunakan format standar (ISO) saat menyimpan agar parsing selalu berhasil
                 createdAt: new Date().toISOString()
             };
 
-            // Update UI lokal
             passwords.unshift(newEntry);
-            
-            // Clear Form
             titleInput.value = '';
             document.getElementById('add-username').value = '';
             document.getElementById('add-password').value = '';
-            renderPresets(); // reset preset styling
+            renderPresets();
             renderPasswords(false);
 
-            // POST ke Google Sheets
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -531,6 +616,67 @@
             } finally {
                 btnSave.disabled = false;
                 btnSave.innerText = "Simpan Kredensial";
+            }
+        });
+
+        // Modal Edit Handlers
+        function openEditModal(id) {
+            const item = passwords.find(p => p.id === id);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-title').value = item.title;
+            document.getElementById('edit-username').value = item.username;
+            document.getElementById('edit-password').value = item.password;
+            
+            editCategory = item.category || 'Pribadi';
+            updateEditCategoryUI();
+            
+            editModal.classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+        }
+
+        // Submit Form Edit
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnUpdate = document.getElementById('btn-update');
+            btnUpdate.disabled = true;
+            btnUpdate.innerText = "Menyimpan...";
+
+            const id = document.getElementById('edit-id').value;
+            const updatedEntry = {
+                id: id,
+                title: document.getElementById('edit-title').value,
+                username: document.getElementById('edit-username').value,
+                password: document.getElementById('edit-password').value,
+                category: editCategory
+            };
+
+            // Update UI
+            const index = passwords.findIndex(p => p.id === id);
+            if (index !== -1) {
+                passwords[index] = { ...passwords[index], ...updatedEntry };
+            }
+            
+            renderPasswords();
+            closeEditModal();
+
+            // Kirim ke Google Sheets
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'edit', data: updatedEntry })
+                });
+                showToast("Data berhasil diupdate di Cloud!");
+            } catch (error) {
+                showToast("Berhasil diupdate lokal. Gagal ke Cloud.");
+            } finally {
+                btnUpdate.disabled = false;
+                btnUpdate.innerText = "Simpan Update";
             }
         });
 
@@ -575,7 +721,7 @@
             } else {
                 revealedIds.add(id);
             }
-            renderPasswords(); // Render ulang list untuk update UI mata & teks
+            renderPasswords();
         }
 
         // Search
@@ -590,7 +736,6 @@
                 const clickedTab = e.currentTarget;
                 activeTab = clickedTab.dataset.tab;
 
-                // Update tab styles
                 document.querySelectorAll('.tab-btn').forEach(b => {
                     b.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap";
                 });
