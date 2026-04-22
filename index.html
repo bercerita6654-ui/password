@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brankas Sandi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out forwards;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- VIEW: LOGIN -->
+    <div id="login-view" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 relative overflow-hidden animate-fade-in-down">
+        <div class="flex justify-center mb-6">
+            <div class="bg-slate-700 p-4 rounded-full border border-slate-600">
+                <i data-feather="shield" class="text-indigo-400 w-10 h-10"></i>
+            </div>
+        </div>
+        <h2 class="text-2xl font-bold text-center text-white mb-2">Login Brankas</h2>
+        <p class="text-slate-400 text-center text-sm mb-8">Masuk menggunakan akun dari Google Sheets.</p>
+        
+        <form id="login-form" class="space-y-5">
+            <div class="space-y-1.5">
+                <label class="text-sm font-medium text-slate-300 ml-1">Username</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="user" class="text-slate-500 w-4 h-4"></i>
+                    </div>
+                    <input type="text" id="login-username" placeholder="Masukkan username" required
+                        class="w-full bg-slate-900 border border-slate-600 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-3 outline-none transition-colors">
+                </div>
+            </div>
+            
+            <div class="space-y-1.5">
+                <label class="text-sm font-medium text-slate-300 ml-1">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="key" class="text-slate-500 w-4 h-4"></i>
+                    </div>
+                    <input type="password" id="login-password" placeholder="Masukkan password" required
+                        class="w-full bg-slate-900 border border-slate-600 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-3 outline-none transition-colors">
+                </div>
+            </div>
+
+            <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 disabled:text-indigo-300 text-white font-medium py-3 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex justify-center items-center gap-2 mt-4">
+                <i data-feather="log-in" class="w-[18px] h-[18px]"></i> <span id="login-text">Masuk</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- VIEW: DASHBOARD -->
+    <div id="dashboard-view" class="hidden max-w-5xl mx-auto space-y-8 animate-fade-in-down">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-500 p-3 rounded-xl">
+                    <i data-feather="shield" class="text-white w-8 h-8"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Brankas Sandi</h1>
+                    <p class="text-emerald-400 text-sm flex items-center gap-2 mt-1 font-medium">
+                        <i data-feather="database" class="w-[14px] h-[14px]"></i> Sinkronisasi Aktif
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div class="relative w-full md:w-auto">
+                    <i data-feather="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-[18px] h-[18px]"></i>
+                    <input type="text" id="search-input" placeholder="Cari situs atau username..." 
+                        class="w-full sm:w-64 bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2 outline-none transition-colors text-sm">
+                </div>
+                <button id="btn-logout" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg border border-red-500/20 transition-colors flex items-center justify-center shrink-0" title="Keluar / Logout">
+                    <i data-feather="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sisi Kiri: Form Tambah Data -->
+            <div class="lg:col-span-1">
+                <div class="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700 sticky top-8">
+                    <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                        <i data-feather="plus" class="text-indigo-400 w-5 h-5"></i> Tambah Baru
+                    </h2>
+                    
+                    <form id="add-form" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-slate-300 ml-1">Kategori Akun</label>
+                            <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700" id="category-selector">
+                                <button type="button" data-cat="Pribadi" class="cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-indigo-600 text-white shadow">
+                                    <i data-feather="home" class="w-4 h-4"></i> Pribadi
+                                </button>
+                                <button type="button" data-cat="Kantor" class="cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200">
+                                    <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-slate-300 ml-1">Nama Akses</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="lock" class="text-slate-400 w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="add-title" placeholder="Pilih saran di bawah atau ketik..." required
+                                    class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                            </div>
+                            <!-- Preset Pilihan Situs -->
+                            <div class="flex flex-wrap gap-1.5 pt-1" id="preset-container">
+                                <!-- Dirender via JS -->
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-slate-300 ml-1">Nama Pengguna / Email</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="user" class="text-slate-400 w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="add-username" placeholder="email@contoh.com" required
+                                    class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-slate-300 ml-1">Kata Sandi</label>
+                            <div class="relative flex gap-2">
+                                <div class="relative flex-1">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i data-feather="key" class="text-slate-400 w-4 h-4"></i>
+                                    </div>
+                                    <input type="text" id="add-password" placeholder="Masukkan atau buat sandi" required
+                                        class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                                </div>
+                                <button type="button" id="btn-generate-pw" title="Buat Sandi Acak"
+                                    class="bg-slate-700 hover:bg-slate-600 text-indigo-300 p-2.5 rounded-lg border border-slate-600 transition-colors">
+                                    <i data-feather="refresh-cw" class="w-[18px] h-[18px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-save" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] mt-4">
+                            Simpan Kredensial
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sisi Kanan: Daftar Kata Sandi -->
+            <div class="lg:col-span-2">
+                <div class="space-y-4">
+                    
+                    <!-- Tab Navigasi Kategori -->
+                    <div id="tabs-container" class="hidden flex gap-2 border-b border-slate-700 pb-4 mb-4 overflow-x-auto">
+                        <button data-tab="Semua" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 whitespace-nowrap">
+                            <i data-feather="database" class="w-4 h-4"></i> Semua
+                        </button>
+                        <button data-tab="Pribadi" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap">
+                            <i data-feather="home" class="w-4 h-4"></i> Pribadi
+                        </button>
+                        <button data-tab="Kantor" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap">
+                            <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
+                        </button>
+                    </div>
+
+                    <!-- Area Konten (Loading, Empty, List) -->
+                    <div id="content-area">
+                        <!-- Konten akan dirender via JS -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- State Application ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPFEJw7QXu4M9oW6uNs6qvr2NrWUHrC6_eBqi3XNmFDB0zX1iREyjEiF9YeGEqgcdy/exec';
+        let passwords = [];
+        let category = 'Pribadi';
+        let activeTab = 'Semua';
+        let revealedIds = new Set();
+        let searchTerm = '';
+        
+        // Konstanta Preset
+        const presets = ["Email", "Instagram", "Facebook", "TikTok", "Tokopedia", "Shopee"];
+
+        // --- DOM Elements ---
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const addForm = document.getElementById('add-form');
+        const contentArea = document.getElementById('content-area');
+        const tabsContainer = document.getElementById('tabs-container');
+        const presetContainer = document.getElementById('preset-container');
+        const searchInput = document.getElementById('search-input');
+        const titleInput = document.getElementById('add-title');
+        
+        // --- Inisialisasi ---
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+            renderPresets();
+        });
+
+        // --- Utility Functions ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-emerald-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in-down';
+            toast.innerHTML = `<i data-feather="check" class="w-5 h-5"></i><span class="font-medium">${message}</span>`;
+            
+            container.appendChild(toast);
+            feather.replace();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                toast.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function generateUUID() {
+            // Fallback sederhana jika crypto.randomUUID tidak ada
+            if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // --- Render Functions ---
+        function renderPresets() {
+            presetContainer.innerHTML = presets.map(preset => `
+                <button type="button" onclick="selectPreset('${preset}')" class="preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300">
+                    ${preset}
+                </button>
+            `).join('');
+        }
+
+        function selectPreset(preset) {
+            titleInput.value = preset;
+            // Update UI preset
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                if (btn.innerText.trim() === preset) {
+                    btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-indigo-500/20 border-indigo-500 text-indigo-300";
+                } else {
+                    btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300";
+                }
+            });
+        }
+
+        // Event listener saat mengetik manual di title
+        titleInput.addEventListener('input', () => {
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300";
+            });
+        });
+
+        function renderPasswords(isLoading = false) {
+            if (isLoading) {
+                tabsContainer.classList.add('hidden');
+                contentArea.innerHTML = `
+                    <div class="bg-slate-800 rounded-2xl p-12 text-center text-slate-400 flex flex-col items-center justify-center border border-slate-700">
+                        <i data-feather="refresh-cw" class="w-10 h-10 animate-spin mb-4 text-indigo-500"></i>
+                        <p>Memuat data dari Spreadsheet...</p>
+                    </div>`;
+                feather.replace();
+                return;
+            }
+
+            if (passwords.length === 0) {
+                tabsContainer.classList.add('hidden');
+                contentArea.innerHTML = `
+                    <div class="bg-slate-800 border border-slate-700 border-dashed rounded-2xl p-12 text-center text-slate-400">
+                        <i data-feather="shield" class="w-12 h-12 mx-auto mb-4 text-slate-600 opacity-50"></i>
+                        <h3 class="text-lg font-medium text-slate-300 mb-1">Belum ada data</h3>
+                        <p class="text-sm">Kata sandi yang Anda simpan akan muncul di sini.</p>
+                    </div>`;
+                feather.replace();
+                return;
+            }
+
+            tabsContainer.classList.remove('hidden');
+
+            const filtered = passwords.filter(p => {
+                const matchSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                    p.username.toLowerCase().includes(searchTerm.toLowerCase());
+                const itemCategory = p.category || 'Pribadi'; 
+                const matchTab = activeTab === 'Semua' || itemCategory === activeTab;
+                return matchSearch && matchTab;
+            });
+
+            if (filtered.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="bg-slate-800 rounded-2xl p-8 text-center text-slate-400 border border-slate-700">
+                        <p>Tidak ada hasil yang cocok dengan pencarian atau filter.</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+            filtered.forEach(item => {
+                const isRevealed = revealedIds.has(item.id);
+                const displayPassword = isRevealed ? item.password : '••••••••••••';
+                const eyeIcon = isRevealed ? 'eye-off' : 'eye';
+                const catColor = (item.category || 'Pribadi') === 'Kantor' 
+                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
+                    : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+
+                html += `
+                    <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500/50 transition-colors group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1 truncate pr-4">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="font-semibold text-lg text-white truncate">${item.title}</h3>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${catColor}">
+                                        ${item.category || 'Pribadi'}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5">Ditambahkan: ${item.createdAt}</p>
+                            </div>
+                            <button onclick="handleDelete('${item.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus">
+                                <i data-feather="trash-2" class="w-[18px] h-[18px]"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Username -->
+                            <div class="flex items-center justify-between bg-slate-900/50 rounded-lg p-2.5 border border-slate-700/50">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <i data-feather="user" class="text-slate-500 w-4 h-4 shrink-0"></i>
+                                    <span class="text-sm text-slate-300 truncate">${item.username}</span>
+                                </div>
+                                <button onclick="copyText('${item.username}', 'Username')" class="text-slate-400 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded transition-colors shrink-0" title="Salin Username">
+                                    <i data-feather="copy" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="flex items-center justify-between bg-slate-900/50 rounded-lg p-2.5 border border-slate-700/50">
+                                <div class="flex items-center gap-3 overflow-hidden w-full">
+                                    <i data-feather="key" class="text-slate-500 w-4 h-4 shrink-0"></i>
+                                    <span class="text-sm text-slate-300 font-mono tracking-wider truncate flex-1">${displayPassword}</span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0 ml-2">
+                                    <button onclick="toggleVisibility('${item.id}')" class="text-slate-400 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded transition-colors">
+                                        <i data-feather="${eyeIcon}" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button onclick="copyText('${item.password}', 'Kata Sandi')" class="text-slate-400 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded transition-colors" title="Salin Kata Sandi">
+                                        <i data-feather="copy" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            contentArea.innerHTML = html;
+            feather.replace(); // Render ulang ikon di dalam list
+        }
+
+        // --- Action Handlers ---
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('login-username').value;
+            const pass = document.getElementById('login-password').value;
+            const btnLogin = document.getElementById('btn-login');
+            
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = `<i data-feather="refresh-cw" class="w-[18px] h-[18px] animate-spin"></i> Memeriksa...`;
+            feather.replace();
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'login', username: user, password: pass })
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast("Login berhasil!");
+                    loginView.classList.add('hidden');
+                    dashboardView.classList.remove('hidden');
+                    document.getElementById('login-password').value = ''; // clear
+                    fetchData(); // Load data setelah login
+                } else {
+                    showToast(result.message || "Username atau password salah!");
+                }
+            } catch (error) {
+                showToast("Gagal terhubung ke server.");
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = `<i data-feather="log-in" class="w-[18px] h-[18px]"></i> Masuk`;
+                feather.replace();
+            }
+        });
+
+        // Logout
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            loginView.classList.remove('hidden');
+            dashboardView.classList.add('hidden');
+            passwords = [];
+            activeTab = 'Semua';
+            showToast("Berhasil logout.");
+        });
+
+        // Fetch Data dari Google Sheets
+        async function fetchData() {
+            renderPasswords(true);
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    passwords = result.data || [];
+                    renderPasswords(false);
+                }
+            } catch (error) {
+                showToast("Gagal memuat dari Spreadsheet.");
+                renderPasswords(false);
+            }
+        }
+
+        // Ganti Kategori Form
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update styling
+                document.querySelectorAll('.cat-btn').forEach(b => {
+                    b.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200";
+                });
+                const clickedBtn = e.currentTarget;
+                clickedBtn.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-indigo-600 text-white shadow";
+                
+                category = clickedBtn.dataset.cat;
+            });
+        });
+
+        // Generate Password
+        document.getElementById('btn-generate-pw').addEventListener('click', () => {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+            let newPassword = "";
+            for (let i = 0; i < 16; i++) {
+                newPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('add-password').value = newPassword;
+            showToast("Kata sandi kuat berhasil dibuat!");
+        });
+
+        // Submit Form Tambah
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titleVal = titleInput.value;
+            const userVal = document.getElementById('add-username').value;
+            const passVal = document.getElementById('add-password').value;
+
+            const btnSave = document.getElementById('btn-save');
+            btnSave.disabled = true;
+            btnSave.innerText = "Menyimpan...";
+
+            const newEntry = {
+                id: generateUUID(),
+                title: titleVal,
+                username: userVal,
+                password: passVal,
+                category: category,
+                createdAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+            };
+
+            // Update UI lokal
+            passwords.unshift(newEntry);
+            
+            // Clear Form
+            titleInput.value = '';
+            document.getElementById('add-username').value = '';
+            document.getElementById('add-password').value = '';
+            renderPresets(); // reset preset styling
+            renderPasswords(false);
+
+            // POST ke Google Sheets
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'add', data: newEntry })
+                });
+                showToast("Data aman tersimpan di Spreadsheet!");
+            } catch (error) {
+                showToast("Disimpan lokal. Gagal sinkron ke Cloud.");
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerText = "Simpan Kredensial";
+            }
+        });
+
+        // Hapus Data
+        async function handleDelete(id) {
+            if(!confirm("Yakin ingin menghapus sandi ini?")) return;
+            
+            passwords = passwords.filter(p => p.id !== id);
+            renderPasswords();
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'delete', id: id })
+                });
+                showToast("Data dihapus dari Spreadsheet!");
+            } catch (error) {
+                showToast("Gagal menghapus dari Cloud.");
+            }
+        }
+
+        // Salin Teks
+        function copyText(text, type) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                showToast(`${type} berhasil disalin!`);
+            } catch (err) {
+                showToast("Gagal menyalin teks.");
+            }
+        }
+
+        // Tampilkan/Sembunyikan Sandi
+        function toggleVisibility(id) {
+            if (revealedIds.has(id)) {
+                revealedIds.delete(id);
+            } else {
+                revealedIds.add(id);
+            }
+            renderPasswords(); // Render ulang list untuk update UI mata & teks
+        }
+
+        // Search
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderPasswords();
+        });
+
+        // Tab Navigasi Kategori
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const clickedTab = e.currentTarget;
+                activeTab = clickedTab.dataset.tab;
+
+                // Update tab styles
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap";
+                });
+                clickedTab.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 whitespace-nowrap";
+                
+                renderPasswords();
+            });
+        });
+
+    </script>
+</body>
+</html>
