@@ -250,6 +250,22 @@
             });
         }
 
+        // Fungsi format tanggal baru
+        function formatTanggal(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            
+            // Mengembalikan string aslinya jika bukan tanggal valid
+            if (isNaN(date.getTime())) return dateString; 
+            
+            // Format ke 03 Mei 2023
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
         // --- Render Functions ---
         function renderPresets() {
             presetContainer.innerHTML = presets.map(preset => `
@@ -339,7 +355,7 @@
                                         ${item.category || 'Pribadi'}
                                     </span>
                                 </div>
-                                <p class="text-xs text-slate-500 mt-0.5">Ditambahkan: ${item.createdAt}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Ditambahkan: ${formatTanggal(item.createdAt)}</p>
                             </div>
                             <button onclick="handleDelete('${item.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus">
                                 <i data-feather="trash-2" class="w-[18px] h-[18px]"></i>
@@ -488,7 +504,8 @@
                 username: userVal,
                 password: passVal,
                 category: category,
-                createdAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                // Gunakan format standar (ISO) saat menyimpan agar parsing selalu berhasil
+                createdAt: new Date().toISOString()
             };
 
             // Update UI lokal
