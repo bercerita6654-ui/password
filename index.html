@@ -159,6 +159,17 @@
                             </div>
                         </div>
 
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-medium text-slate-300 ml-1">Tanggal</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i data-feather="calendar" class="text-slate-400 w-4 h-4"></i>
+                                </div>
+                                <input type="date" id="add-date" required
+                                    class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm [color-scheme:dark]">
+                            </div>
+                        </div>
+
                         <button type="submit" id="btn-save" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] mt-4">
                             Simpan Kredensial
                         </button>
@@ -254,6 +265,17 @@
                     </div>
                 </div>
 
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Tanggal</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="calendar" class="text-slate-400 w-4 h-4"></i>
+                        </div>
+                        <input type="date" id="edit-date" required
+                            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm [color-scheme:dark]">
+                    </div>
+                </div>
+
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-lg transition-colors">Batal</button>
                     <button type="submit" id="btn-update" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-amber-500/20 transition-all">Simpan Update</button>
@@ -288,11 +310,15 @@
         const presetContainer = document.getElementById('preset-container');
         const searchInput = document.getElementById('search-input');
         const titleInput = document.getElementById('add-title');
+        const addDateInput = document.getElementById('add-date');
+        const editDateInput = document.getElementById('edit-date');
         
         // --- Inisialisasi ---
         document.addEventListener('DOMContentLoaded', () => {
             feather.replace();
             renderPresets();
+            // Set default date hari ini pada form tambah
+            addDateInput.value = new Date().toISOString().split('T')[0];
         });
 
         // --- Utility Functions ---
@@ -588,19 +614,22 @@
             btnSave.disabled = true;
             btnSave.innerText = "Menyimpan...";
 
+            const selectedDate = addDateInput.value;
+
             const newEntry = {
                 id: generateUUID(),
                 title: titleInput.value,
                 username: document.getElementById('add-username').value,
                 password: document.getElementById('add-password').value,
                 category: category,
-                createdAt: new Date().toISOString()
+                createdAt: new Date(selectedDate).toISOString() // Simpan sesuai tanggal yang dipilih
             };
 
             passwords.unshift(newEntry);
             titleInput.value = '';
             document.getElementById('add-username').value = '';
             document.getElementById('add-password').value = '';
+            addDateInput.value = new Date().toISOString().split('T')[0]; // Reset ke hari ini
             renderPresets();
             renderPasswords(false);
 
@@ -629,6 +658,16 @@
             document.getElementById('edit-username').value = item.username;
             document.getElementById('edit-password').value = item.password;
             
+            // Format ISO ke YYYY-MM-DD untuk input type="date"
+            let dateStr = new Date().toISOString().split('T')[0];
+            if (item.createdAt) {
+                const d = new Date(item.createdAt);
+                if (!isNaN(d.getTime())) {
+                    dateStr = d.toISOString().split('T')[0];
+                }
+            }
+            editDateInput.value = dateStr;
+            
             editCategory = item.category || 'Pribadi';
             updateEditCategoryUI();
             
@@ -652,7 +691,8 @@
                 title: document.getElementById('edit-title').value,
                 username: document.getElementById('edit-username').value,
                 password: document.getElementById('edit-password').value,
-                category: editCategory
+                category: editCategory,
+                createdAt: new Date(editDateInput.value).toISOString() // Kirim tanggal baru
             };
 
             // Update UI
