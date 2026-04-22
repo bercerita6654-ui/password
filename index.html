@@ -364,6 +364,29 @@
             });
         }
 
+        // Fungsi untuk menentukan ikon berdasarkan nama akses
+        function getIconForTitle(title) {
+            if (!title) return 'globe';
+            const lowerTitle = title.toLowerCase();
+            
+            // Cek apakah cocok dengan preset yang ada
+            for (const preset of presets) {
+                if (lowerTitle.includes(preset.name.toLowerCase())) {
+                    return preset.icon;
+                }
+            }
+            
+            // Fallback untuk beberapa situs umum lainnya
+            if (lowerTitle.includes('google') || lowerTitle.includes('gmail')) return 'mail';
+            if (lowerTitle.includes('twitter') || lowerTitle.includes('x')) return 'twitter';
+            if (lowerTitle.includes('github')) return 'github';
+            if (lowerTitle.includes('linkedin')) return 'linkedin';
+            if (lowerTitle.includes('youtube')) return 'youtube';
+            
+            // Default icon jika tidak ada yang cocok
+            return 'globe';
+        }
+
         // --- Render Functions ---
         function renderPresets() {
             presetContainer.innerHTML = presets.map(preset => `
@@ -453,14 +476,20 @@
                 const catColor = (item.category || 'Pribadi') === 'Kantor' 
                     ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
                     : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                
+                // Ambil ikon yang sesuai dengan judul
+                const titleIcon = getIconForTitle(item.title);
 
                 html += `
                     <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500/50 transition-colors group">
                         <div class="flex justify-between items-start mb-4">
                             <div class="flex-1 truncate pr-4">
-                                <div class="flex items-center gap-2 mb-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="bg-slate-700/80 p-1.5 rounded-lg border border-slate-600/50 shrink-0">
+                                        <i data-feather="${titleIcon}" class="w-4 h-4 text-indigo-400"></i>
+                                    </div>
                                     <h3 class="font-semibold text-lg text-white truncate">${item.title}</h3>
-                                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${catColor}">
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${catColor} shrink-0">
                                         ${item.category || 'Pribadi'}
                                     </span>
                                 </div>
