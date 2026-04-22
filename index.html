@@ -4,281 +4,343 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brankas Sandi</title>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config for Custom Font & Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            500: '#6366f1', // Indigo
+                            600: '#4f46e5',
+                            accent: '#8b5cf6' // Violet
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
         @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-10px); }
+            0% { opacity: 0; transform: translateY(-20px); }
             100% { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-down {
-            animation: fadeInDown 0.3s ease-out forwards;
+            animation: fadeInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        /* Custom scrollbar for webkit */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
     </style>
 </head>
-<body class="min-h-screen bg-slate-900 text-slate-100 p-4 md:p-8 font-sans">
+<body class="min-h-screen bg-[#0f172a] text-slate-100 font-sans relative overflow-x-hidden">
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    <!-- Decorative Background Orbs -->
+    <div class="fixed top-[-15%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-15%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-600/10 blur-[120px] pointer-events-none z-0"></div>
 
-    <!-- VIEW: LOGIN -->
-    <div id="login-view" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 relative overflow-hidden animate-fade-in-down">
-        <div class="flex justify-center mb-6">
-            <div class="bg-slate-700 p-4 rounded-full border border-slate-600">
-                <i data-feather="shield" class="text-indigo-400 w-10 h-10"></i>
-            </div>
-        </div>
-        <h2 class="text-2xl font-bold text-center text-white mb-2">Login Brankas</h2>
-        <p class="text-slate-400 text-center text-sm mb-8">Masuk menggunakan akun dari Google Sheets.</p>
-        
-        <form id="login-form" class="space-y-5">
-            <div class="space-y-1.5">
-                <label class="text-sm font-medium text-slate-300 ml-1">Username</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-feather="user" class="text-slate-500 w-4 h-4"></i>
-                    </div>
-                    <input type="text" id="login-username" placeholder="Masukkan username" required
-                        class="w-full bg-slate-900 border border-slate-600 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-3 outline-none transition-colors">
-                </div>
-            </div>
+    <!-- Main Content Wrapper (z-10 to stay above orbs) -->
+    <div class="relative z-10 p-4 md:p-8">
+
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3"></div>
+
+        <!-- VIEW: LOGIN -->
+        <div id="login-view" class="max-w-md mx-auto mt-24 glass-panel p-8 rounded-3xl relative overflow-hidden animate-fade-in-down">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500"></div>
             
-            <div class="space-y-1.5">
-                <label class="text-sm font-medium text-slate-300 ml-1">Password</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-feather="key" class="text-slate-500 w-4 h-4"></i>
-                    </div>
-                    <input type="password" id="login-password" placeholder="Masukkan password" required
-                        class="w-full bg-slate-900 border border-slate-600 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-3 outline-none transition-colors">
+            <div class="flex justify-center mb-8">
+                <div class="bg-gradient-to-br from-indigo-500/20 to-violet-500/20 p-4 rounded-2xl border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+                    <i data-feather="shield" class="text-indigo-400 w-12 h-12"></i>
                 </div>
             </div>
-
-            <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 disabled:text-indigo-300 text-white font-medium py-3 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex justify-center items-center gap-2 mt-4">
-                <i data-feather="log-in" class="w-[18px] h-[18px]"></i> <span id="login-text">Masuk</span>
-            </button>
-        </form>
-    </div>
-
-    <!-- VIEW: DASHBOARD -->
-    <div id="dashboard-view" class="hidden max-w-5xl mx-auto space-y-8 animate-fade-in-down">
-        <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700">
-            <div class="flex items-center gap-4">
-                <div class="bg-indigo-500 p-3 rounded-xl">
-                    <i data-feather="shield" class="text-white w-8 h-8"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-white">Brankas Sandi</h1>
-                    <p class="text-emerald-400 text-sm flex items-center gap-2 mt-1 font-medium">
-                        <i data-feather="database" class="w-[14px] h-[14px]"></i> Sinkronisasi Aktif
-                    </p>
-                </div>
-            </div>
+            <h2 class="text-3xl font-bold text-center text-white mb-2 tracking-tight">Brankas<span class="text-gradient">Sandi</span></h2>
+            <p class="text-slate-400 text-center text-sm mb-8 font-light">Masuk untuk mengakses kredensial aman Anda.</p>
             
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <div class="relative w-full md:w-auto">
-                    <i data-feather="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-[18px] h-[18px]"></i>
-                    <input type="text" id="search-input" placeholder="Cari situs atau username..." 
-                        class="w-full sm:w-64 bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2 outline-none transition-colors text-sm">
+            <form id="login-form" class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Username</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-feather="user" class="text-slate-500 group-focus-within:text-indigo-400 transition-colors w-4 h-4"></i>
+                        </div>
+                        <input type="text" id="login-username" placeholder="Masukkan username" required
+                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-11 pr-4 py-3.5 outline-none transition-all placeholder:text-slate-600">
+                    </div>
                 </div>
-                <button id="btn-logout" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg border border-red-500/20 transition-colors flex items-center justify-center shrink-0" title="Keluar / Logout">
-                    <i data-feather="log-out" class="w-5 h-5"></i>
+                
+                <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-slate-300 ml-1">Password</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i data-feather="key" class="text-slate-500 group-focus-within:text-indigo-400 transition-colors w-4 h-4"></i>
+                        </div>
+                        <input type="password" id="login-password" placeholder="Masukkan password" required
+                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-11 pr-4 py-3.5 outline-none transition-all placeholder:text-slate-600">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-70 text-white font-medium py-3.5 rounded-xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2 mt-6">
+                    <i data-feather="log-in" class="w-5 h-5"></i> <span id="login-text">Akses Brankas</span>
                 </button>
-            </div>
-        </header>
+            </form>
+        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Sisi Kiri: Form Tambah Data -->
-            <div class="lg:col-span-1">
-                <div class="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700 sticky top-8">
-                    <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                        <i data-feather="plus" class="text-indigo-400 w-5 h-5"></i> Tambah Baru
-                    </h2>
-                    
-                    <form id="add-form" class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-medium text-slate-300 ml-1">Kategori Akun</label>
-                            <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700" id="category-selector">
-                                <button type="button" data-cat="Pribadi" class="cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-indigo-600 text-white shadow">
-                                    <i data-feather="home" class="w-4 h-4"></i> Pribadi
-                                </button>
-                                <button type="button" data-cat="Kantor" class="cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200">
-                                    <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-medium text-slate-300 ml-1">Nama Akses</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="lock" class="text-slate-400 w-4 h-4"></i>
-                                </div>
-                                <input type="text" id="add-title" placeholder="Pilih ikon atau ketik nama..." required
-                                    class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
-                            </div>
-                            <!-- Preset Pilihan Situs (Icons) -->
-                            <div class="flex flex-wrap gap-2 pt-2" id="preset-container">
-                                <!-- Dirender via JS -->
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-medium text-slate-300 ml-1">Nama Pengguna / Email</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="user" class="text-slate-400 w-4 h-4"></i>
-                                </div>
-                                <input type="text" id="add-username" placeholder="email@contoh.com" required
-                                    class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-medium text-slate-300 ml-1">Kata Sandi</label>
-                            <div class="relative flex gap-2">
-                                <div class="relative flex-1">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i data-feather="key" class="text-slate-400 w-4 h-4"></i>
-                                    </div>
-                                    <input type="text" id="add-password" placeholder="Masukkan atau buat sandi" required
-                                        class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
-                                </div>
-                                <button type="button" id="btn-generate-pw" title="Buat Sandi Acak"
-                                    class="bg-slate-700 hover:bg-slate-600 text-indigo-300 p-2.5 rounded-lg border border-slate-600 transition-colors">
-                                    <i data-feather="refresh-cw" class="w-[18px] h-[18px]"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-medium text-slate-300 ml-1">Tanggal</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-feather="calendar" class="text-slate-400 w-4 h-4"></i>
-                                </div>
-                                <input type="date" id="add-date" required
-                                    class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm [color-scheme:dark]">
-                            </div>
-                        </div>
-
-                        <button type="submit" id="btn-save" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98] mt-4">
-                            Simpan Kredensial
-                        </button>
-                    </form>
+        <!-- VIEW: DASHBOARD -->
+        <div id="dashboard-view" class="hidden max-w-6xl mx-auto space-y-8 animate-fade-in-down">
+            <!-- Header -->
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 glass-panel p-6 rounded-3xl">
+                <div class="flex items-center gap-5">
+                    <div class="bg-gradient-to-br from-indigo-500 to-violet-600 p-3.5 rounded-2xl shadow-lg shadow-indigo-500/30">
+                        <i data-feather="shield" class="text-white w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight">Brankas<span class="text-gradient">Sandi</span></h1>
+                        <p class="text-emerald-400 text-xs flex items-center gap-1.5 mt-1 bg-emerald-500/10 w-max px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Sinkronisasi Aktif
+                        </p>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Sisi Kanan: Daftar Kata Sandi -->
-            <div class="lg:col-span-2">
-                <div class="space-y-4">
-                    
-                    <!-- Tab Navigasi Kategori -->
-                    <div id="tabs-container" class="hidden flex gap-2 border-b border-slate-700 pb-4 mb-4 overflow-x-auto">
-                        <button data-tab="Semua" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 whitespace-nowrap">
-                            <i data-feather="database" class="w-4 h-4"></i> Semua
-                        </button>
-                        <button data-tab="Pribadi" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap">
-                            <i data-feather="home" class="w-4 h-4"></i> Pribadi
-                        </button>
-                        <button data-tab="Kantor" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap">
-                            <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
-                        </button>
+                
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="relative w-full md:w-72 group">
+                        <i data-feather="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
+                        <input type="text" id="search-input" placeholder="Cari situs, username..." 
+                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-11 pr-4 py-2.5 outline-none transition-all text-sm placeholder:text-slate-500">
                     </div>
+                    <button id="btn-logout" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-xl border border-red-500/20 transition-all flex items-center justify-center gap-2 font-medium shrink-0 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)]">
+                        <i data-feather="log-out" class="w-4 h-4"></i> <span class="hidden sm:inline">Keluar</span>
+                    </button>
+                </div>
+            </header>
 
-                    <!-- Area Konten (Loading, Empty, List) -->
-                    <div id="content-area">
-                        <!-- Konten akan dirender via JS -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Sisi Kiri: Form Tambah Data -->
+                <div class="lg:col-span-4">
+                    <div class="glass-panel rounded-3xl p-6 lg:sticky lg:top-8">
+                        <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2 border-b border-slate-700/50 pb-4">
+                            <div class="bg-indigo-500/20 p-1.5 rounded-lg text-indigo-400">
+                                <i data-feather="plus" class="w-4 h-4"></i>
+                            </div>
+                            Tambah Baru
+                        </h2>
+                        
+                        <form id="add-form" class="space-y-4.5">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Kategori Akun</label>
+                                <div class="flex bg-slate-900/50 p-1 rounded-xl border border-slate-700/50" id="category-selector">
+                                    <button type="button" data-cat="Pribadi" class="cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-slate-700 text-white shadow-sm">
+                                        <i data-feather="home" class="w-4 h-4"></i> Pribadi
+                                    </button>
+                                    <button type="button" data-cat="Kantor" class="cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
+                                        <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5 pt-2">
+                                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Nama Akses</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i data-feather="lock" class="text-slate-500 group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
+                                    </div>
+                                    <input type="text" id="add-title" placeholder="Pilih ikon atau ketik nama..." required
+                                        class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-600">
+                                </div>
+                                <!-- Preset Pilihan Situs (Icons) -->
+                                <div class="flex flex-wrap gap-2 pt-2" id="preset-container">
+                                    <!-- Dirender via JS -->
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5 pt-2">
+                                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Nama Pengguna / Email</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i data-feather="user" class="text-slate-500 group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
+                                    </div>
+                                    <input type="text" id="add-username" placeholder="email@contoh.com" required
+                                        class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-600">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5 pt-2">
+                                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Kata Sandi</label>
+                                <div class="relative flex gap-2 group">
+                                    <div class="relative flex-1">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                            <i data-feather="key" class="text-slate-500 group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
+                                        </div>
+                                        <input type="text" id="add-password" placeholder="Masukkan atau buat sandi" required
+                                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-600">
+                                    </div>
+                                    <button type="button" id="btn-generate-pw" title="Buat Sandi Acak"
+                                        class="bg-slate-800 hover:bg-slate-700 text-indigo-400 p-3 rounded-xl border border-slate-700/50 transition-colors hover:border-indigo-500/50">
+                                        <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5 pt-2">
+                                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Tanggal</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i data-feather="calendar" class="text-slate-500 group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
+                                    </div>
+                                    <input type="date" id="add-date" required
+                                        class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm [color-scheme:dark]">
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btn-save" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold py-3.5 rounded-xl shadow-[0_10px_20px_-5px_rgba(79,70,229,0.3)] transform hover:-translate-y-0.5 transition-all mt-6 flex justify-center items-center gap-2">
+                                <i data-feather="save" class="w-4 h-4"></i> Simpan Kredensial
+                            </button>
+                        </form>
                     </div>
+                </div>
 
+                <!-- Sisi Kanan: Daftar Kata Sandi -->
+                <div class="lg:col-span-8">
+                    <div class="space-y-5">
+                        
+                        <!-- Tab Navigasi Kategori -->
+                        <div id="tabs-container" class="hidden flex gap-2 border-b border-slate-700/50 pb-4 overflow-x-auto">
+                            <button data-tab="Semua" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 whitespace-nowrap shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+                                <i data-feather="database" class="w-4 h-4"></i> Semua
+                            </button>
+                            <button data-tab="Pribadi" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-slate-800/50 text-slate-400 border border-transparent hover:bg-slate-800 hover:text-slate-200 whitespace-nowrap">
+                                <i data-feather="home" class="w-4 h-4"></i> Pribadi
+                            </button>
+                            <button data-tab="Kantor" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-slate-800/50 text-slate-400 border border-transparent hover:bg-slate-800 hover:text-slate-200 whitespace-nowrap">
+                                <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
+                            </button>
+                        </div>
+
+                        <!-- Area Konten (Loading, Empty, List) -->
+                        <div id="content-area">
+                            <!-- Konten akan dirender via JS -->
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- MODAL EDIT DATA -->
-    <div id="edit-modal" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-600 w-full max-w-md animate-fade-in-down">
-            <h2 class="text-lg font-semibold text-white mb-6 flex items-center gap-2 border-b border-slate-700 pb-3">
-                <i data-feather="edit-2" class="text-amber-400 w-5 h-5"></i> Update Kredensial
+    <div id="edit-modal" class="hidden fixed inset-0 bg-[#0f172a]/80 z-[60] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass-panel rounded-3xl p-8 w-full max-w-md animate-fade-in-down border border-amber-500/20 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+            
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3 border-b border-slate-700/50 pb-4">
+                <div class="bg-amber-500/20 p-2 rounded-xl text-amber-400">
+                    <i data-feather="edit-2" class="w-5 h-5"></i>
+                </div>
+                Update Kredensial
             </h2>
             
-            <form id="edit-form" class="space-y-4">
+            <form id="edit-form" class="space-y-4.5">
                 <input type="hidden" id="edit-id">
                 
                 <div class="space-y-1.5">
-                    <label class="text-sm font-medium text-slate-300 ml-1">Kategori Akun</label>
-                    <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
-                        <button type="button" data-edit-cat="Pribadi" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-amber-600 text-white shadow">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Kategori Akun</label>
+                    <div class="flex bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
+                        <button type="button" data-edit-cat="Pribadi" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-slate-700 text-white shadow-sm">
                             <i data-feather="home" class="w-4 h-4"></i> Pribadi
                         </button>
-                        <button type="button" data-edit-cat="Kantor" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200">
+                        <button type="button" data-edit-cat="Kantor" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
                             <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
                         </button>
                     </div>
                 </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-sm font-medium text-slate-300 ml-1">Nama Akses</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="lock" class="text-slate-400 w-4 h-4"></i>
+                <div class="space-y-1.5 pt-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Nama Akses</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i data-feather="lock" class="text-slate-500 group-focus-within:text-amber-400 w-4 h-4 transition-colors"></i>
                         </div>
                         <input type="text" id="edit-title" required
-                            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-600">
                     </div>
                 </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-sm font-medium text-slate-300 ml-1">Nama Pengguna / Email</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="user" class="text-slate-400 w-4 h-4"></i>
+                <div class="space-y-1.5 pt-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Nama Pengguna / Email</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i data-feather="user" class="text-slate-500 group-focus-within:text-amber-400 w-4 h-4 transition-colors"></i>
                         </div>
                         <input type="text" id="edit-username" required
-                            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-600">
                     </div>
                 </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-sm font-medium text-slate-300 ml-1">Kata Sandi</label>
-                    <div class="relative flex gap-2">
+                <div class="space-y-1.5 pt-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Kata Sandi</label>
+                    <div class="relative flex gap-2 group">
                         <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="key" class="text-slate-400 w-4 h-4"></i>
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i data-feather="key" class="text-slate-500 group-focus-within:text-amber-400 w-4 h-4 transition-colors"></i>
                             </div>
                             <input type="text" id="edit-password" required
-                                class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
+                                class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-600">
                         </div>
                         <button type="button" id="btn-edit-generate-pw" title="Buat Sandi Acak Baru"
-                            class="bg-slate-700 hover:bg-slate-600 text-amber-300 p-2.5 rounded-lg border border-slate-600 transition-colors">
-                            <i data-feather="refresh-cw" class="w-[18px] h-[18px]"></i>
+                            class="bg-slate-800 hover:bg-slate-700 text-amber-400 p-3 rounded-xl border border-slate-700/50 transition-colors hover:border-amber-500/50">
+                            <i data-feather="refresh-cw" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-sm font-medium text-slate-300 ml-1">Tanggal</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="calendar" class="text-slate-400 w-4 h-4"></i>
+                <div class="space-y-1.5 pt-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Tanggal</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i data-feather="calendar" class="text-slate-500 group-focus-within:text-amber-400 w-4 h-4 transition-colors"></i>
                         </div>
                         <input type="date" id="edit-date" required
-                            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm [color-scheme:dark]">
+                            class="w-full bg-slate-900/50 border border-slate-700/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm [color-scheme:dark]">
                     </div>
                 </div>
 
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-lg transition-colors">Batal</button>
-                    <button type="submit" id="btn-update" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 rounded-lg shadow-lg shadow-amber-500/20 transition-all">Simpan Update</button>
+                <div class="flex gap-3 pt-6">
+                    <button type="button" onclick="closeEditModal()" class="w-1/3 bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 rounded-xl transition-colors border border-slate-700">Batal</button>
+                    <button type="submit" id="btn-update" class="w-2/3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-semibold py-3 rounded-xl shadow-[0_10px_20px_-5px_rgba(245,158,11,0.3)] transform hover:-translate-y-0.5 transition-all">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -290,19 +352,18 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwEiC2MbXXcVv0BGZOAE712lqlsAegYOQTwJOy3ROrEfaSVZASRZRw32_kdWuWA7Ubn/exec';
         let passwords = [];
         let category = 'Pribadi';
-        let editCategory = 'Pribadi'; // State for edit modal
+        let editCategory = 'Pribadi'; 
         let activeTab = 'Semua';
         let revealedIds = new Set();
         let searchTerm = '';
         
-        // Konstanta Preset (Menggunakan Feather Icons yang mendekati jika icon spesifik tidak ada)
         const presets = [
             { name: "Email", icon: "mail" },
             { name: "Instagram", icon: "instagram" },
             { name: "Facebook", icon: "facebook" },
-            { name: "TikTok", icon: "video" }, // Menggunakan icon video sebagai representasi tiktok
-            { name: "Tokopedia", icon: "shopping-bag" }, // Menggunakan icon tas belanja
-            { name: "Shopee", icon: "shopping-cart" }, // Menggunakan icon keranjang belanja
+            { name: "TikTok", icon: "video" }, 
+            { name: "Tokopedia", icon: "shopping-bag" }, 
+            { name: "Shopee", icon: "shopping-cart" }, 
             { name: "WiFi", icon: "wifi" }
         ];
 
@@ -325,7 +386,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderPresets();
             feather.replace();
-            // Set default date hari ini pada form tambah
             addDateInput.value = new Date().toISOString().split('T')[0];
         });
 
@@ -333,16 +393,21 @@
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'bg-emerald-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in-down';
-            toast.innerHTML = `<i data-feather="check" class="w-5 h-5"></i><span class="font-medium">${message}</span>`;
+            toast.className = 'glass-card text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in-down border-l-4 border-l-emerald-500';
+            toast.innerHTML = `
+                <div class="bg-emerald-500/20 p-1 rounded-full text-emerald-400">
+                    <i data-feather="check" class="w-4 h-4"></i>
+                </div>
+                <span class="font-medium text-sm">${message}</span>
+            `;
             
             container.appendChild(toast);
             feather.replace();
 
             setTimeout(() => {
                 toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-10px)';
-                toast.style.transition = 'all 0.3s ease-out';
+                toast.style.transform = 'translateY(-10px) scale(0.95)';
+                toast.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
@@ -360,40 +425,36 @@
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return dateString; 
             return date.toLocaleDateString('id-ID', {
-                day: '2-digit', month: 'long', year: 'numeric'
+                day: '2-digit', month: 'short', year: 'numeric'
             });
         }
 
-        // Fungsi untuk menentukan ikon berdasarkan nama akses
         function getIconForTitle(title) {
             if (!title) return 'globe';
             const lowerTitle = title.toLowerCase();
             
-            // Cek apakah cocok dengan preset yang ada
             for (const preset of presets) {
                 if (lowerTitle.includes(preset.name.toLowerCase())) {
                     return preset.icon;
                 }
             }
             
-            // Fallback untuk beberapa situs umum lainnya
             if (lowerTitle.includes('google') || lowerTitle.includes('gmail')) return 'mail';
             if (lowerTitle.includes('twitter') || lowerTitle.includes('x')) return 'twitter';
             if (lowerTitle.includes('github')) return 'github';
             if (lowerTitle.includes('linkedin')) return 'linkedin';
             if (lowerTitle.includes('youtube')) return 'youtube';
             
-            // Default icon jika tidak ada yang cocok
             return 'globe';
         }
 
         // --- Render Functions ---
         function renderPresets() {
             presetContainer.innerHTML = presets.map(preset => `
-                <button type="button" onclick="selectPreset('${preset.name}')" data-name="${preset.name}" class="preset-btn group relative flex items-center justify-center w-[42px] h-[42px] rounded-xl border transition-all bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/10">
+                <button type="button" onclick="selectPreset('${preset.name}')" data-name="${preset.name}" class="preset-btn group relative flex items-center justify-center w-[46px] h-[46px] rounded-xl border transition-all duration-300 bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-400 hover:bg-indigo-500/10 hover:-translate-y-1 hover:shadow-lg">
                     <i data-feather="${preset.icon}" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
                     <!-- Tooltip -->
-                    <span class="absolute -top-9 scale-0 opacity-0 transition-all rounded-md bg-slate-800 px-2.5 py-1 text-xs text-slate-200 group-hover:scale-100 group-hover:opacity-100 whitespace-nowrap border border-slate-600 z-20 shadow-xl pointer-events-none">
+                    <span class="absolute -top-10 scale-0 opacity-0 transition-all duration-200 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 group-hover:scale-100 group-hover:opacity-100 whitespace-nowrap border border-slate-700 z-20 shadow-xl pointer-events-none">
                         ${preset.name}
                     </span>
                 </button>
@@ -411,13 +472,11 @@
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 const name = btn.dataset.name.toLowerCase();
                 if (name === lowerVal) {
-                    // State aktif
-                    btn.classList.remove('bg-slate-900', 'border-slate-700', 'text-slate-400', 'hover:border-indigo-500', 'hover:text-indigo-400', 'hover:bg-indigo-500/10');
-                    btn.classList.add('bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'shadow-[0_0_10px_rgba(99,102,241,0.2)]');
+                    btn.classList.remove('bg-slate-800/50', 'border-slate-700/50', 'text-slate-400');
+                    btn.classList.add('bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'shadow-[0_0_15px_rgba(99,102,241,0.2)]', '-translate-y-1');
                 } else {
-                    // State inaktif
-                    btn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-400', 'hover:border-indigo-500', 'hover:text-indigo-400', 'hover:bg-indigo-500/10');
-                    btn.classList.remove('bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'shadow-[0_0_10px_rgba(99,102,241,0.2)]');
+                    btn.classList.add('bg-slate-800/50', 'border-slate-700/50', 'text-slate-400');
+                    btn.classList.remove('bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'shadow-[0_0_15px_rgba(99,102,241,0.2)]', '-translate-y-1');
                 }
             });
         }
@@ -430,9 +489,14 @@
             if (isLoading) {
                 tabsContainer.classList.add('hidden');
                 contentArea.innerHTML = `
-                    <div class="bg-slate-800 rounded-2xl p-12 text-center text-slate-400 flex flex-col items-center justify-center border border-slate-700">
-                        <i data-feather="refresh-cw" class="w-10 h-10 animate-spin mb-4 text-indigo-500"></i>
-                        <p>Memuat data dari Spreadsheet...</p>
+                    <div class="glass-panel rounded-3xl p-16 text-center flex flex-col items-center justify-center">
+                        <div class="relative w-16 h-16 mb-6">
+                            <div class="absolute inset-0 border-4 border-slate-700 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+                            <i data-feather="database" class="absolute inset-0 m-auto text-indigo-400 w-6 h-6 animate-pulse"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-white mb-1">Membuka Brankas...</h3>
+                        <p class="text-sm text-slate-400">Menyinkronkan data dari Spreadsheet</p>
                     </div>`;
                 feather.replace();
                 return;
@@ -441,10 +505,12 @@
             if (passwords.length === 0) {
                 tabsContainer.classList.add('hidden');
                 contentArea.innerHTML = `
-                    <div class="bg-slate-800 border border-slate-700 border-dashed rounded-2xl p-12 text-center text-slate-400">
-                        <i data-feather="shield" class="w-12 h-12 mx-auto mb-4 text-slate-600 opacity-50"></i>
-                        <h3 class="text-lg font-medium text-slate-300 mb-1">Belum ada data</h3>
-                        <p class="text-sm">Kata sandi yang Anda simpan akan muncul di sini.</p>
+                    <div class="glass-panel border-dashed border-2 border-slate-700/50 rounded-3xl p-16 text-center">
+                        <div class="bg-slate-800/50 w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center border border-slate-700">
+                            <i data-feather="shield-off" class="w-10 h-10 text-slate-500"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Brankas Kosong</h3>
+                        <p class="text-slate-400">Anda belum menyimpan kredensial apapun. <br>Tambahkan di form sebelah kiri.</p>
                     </div>`;
                 feather.replace();
                 return;
@@ -462,72 +528,85 @@
 
             if (filtered.length === 0) {
                 contentArea.innerHTML = `
-                    <div class="bg-slate-800 rounded-2xl p-8 text-center text-slate-400 border border-slate-700">
-                        <p>Tidak ada hasil yang cocok dengan pencarian atau filter.</p>
+                    <div class="glass-panel rounded-3xl p-12 text-center text-slate-400">
+                        <i data-feather="search" class="w-10 h-10 mx-auto mb-4 text-slate-600"></i>
+                        <p>Tidak ada hasil yang cocok dengan pencarian Anda.</p>
                     </div>`;
+                feather.replace();
                 return;
             }
 
-            let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+            let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-5">';
             filtered.forEach(item => {
                 const isRevealed = revealedIds.has(item.id);
                 const displayPassword = isRevealed ? item.password : '••••••••••••';
                 const eyeIcon = isRevealed ? 'eye-off' : 'eye';
-                const catColor = (item.category || 'Pribadi') === 'Kantor' 
+                const isKantor = (item.category || 'Pribadi') === 'Kantor';
+                
+                const catColor = isKantor
                     ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
                     : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
                 
-                // Ambil ikon yang sesuai dengan judul
+                const iconBgColor = isKantor
+                    ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30 text-amber-400'
+                    : 'bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border-indigo-500/30 text-indigo-400';
+
                 const titleIcon = getIconForTitle(item.title);
 
                 html += `
-                    <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-indigo-500/50 transition-colors group">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex-1 truncate pr-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="bg-slate-700/80 p-1.5 rounded-lg border border-slate-600/50 shrink-0">
-                                        <i data-feather="${titleIcon}" class="w-4 h-4 text-indigo-400"></i>
-                                    </div>
-                                    <h3 class="font-semibold text-lg text-white truncate">${item.title}</h3>
-                                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${catColor} shrink-0">
-                                        ${item.category || 'Pribadi'}
-                                    </span>
+                    <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.5)] group border hover:border-indigo-500/30 relative overflow-hidden">
+                        
+                        <!-- Hover decorative gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                        <div class="flex justify-between items-start mb-5 relative z-10">
+                            <div class="flex items-center gap-3.5 pr-2 w-full truncate">
+                                <div class="${iconBgColor} p-2.5 rounded-xl border shadow-inner shrink-0">
+                                    <i data-feather="${titleIcon}" class="w-5 h-5"></i>
                                 </div>
-                                <p class="text-xs text-slate-500 mt-0.5">Ditambahkan: ${formatTanggal(item.createdAt)}</p>
+                                <div class="truncate w-full">
+                                    <h3 class="font-bold text-lg text-white truncate leading-tight mb-1">${item.title}</h3>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md border ${catColor} uppercase tracking-wider shrink-0">
+                                            ${item.category || 'Pribadi'}
+                                        </span>
+                                        <span class="text-xs text-slate-500 shrink-0 truncate">${formatTanggal(item.createdAt)}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                                <button onclick="openEditModal('${item.id}')" class="text-slate-500 hover:text-amber-400 p-1 rounded transition-colors" title="Edit">
-                                    <i data-feather="edit-2" class="w-[18px] h-[18px]"></i>
+                            <div class="flex flex-col gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+                                <button onclick="openEditModal('${item.id}')" class="bg-slate-800/80 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 p-1.5 rounded-lg border border-transparent hover:border-amber-500/30 transition-all" title="Edit">
+                                    <i data-feather="edit-2" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="handleDelete('${item.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition-colors" title="Hapus">
-                                    <i data-feather="trash-2" class="w-[18px] h-[18px]"></i>
+                                <button onclick="handleDelete('${item.id}')" class="bg-slate-800/80 hover:bg-red-500/20 text-slate-400 hover:text-red-400 p-1.5 rounded-lg border border-transparent hover:border-red-500/30 transition-all" title="Hapus">
+                                    <i data-feather="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="space-y-3">
+                        <div class="space-y-2.5 relative z-10">
                             <!-- Username -->
-                            <div class="flex items-center justify-between bg-slate-900/50 rounded-lg p-2.5 border border-slate-700/50">
+                            <div class="flex items-center justify-between bg-slate-900/60 rounded-xl p-3 border border-slate-700/50 group/item hover:border-slate-600 transition-colors">
                                 <div class="flex items-center gap-3 overflow-hidden">
                                     <i data-feather="user" class="text-slate-500 w-4 h-4 shrink-0"></i>
-                                    <span class="text-sm text-slate-300 truncate">${item.username}</span>
+                                    <span class="text-sm text-slate-300 truncate font-medium">${item.username}</span>
                                 </div>
-                                <button onclick="copyText('${item.username}', 'Username')" class="text-slate-400 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded transition-colors shrink-0" title="Salin Username">
+                                <button onclick="copyText('${item.username}', 'Username')" class="text-slate-500 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded-md transition-colors shrink-0" title="Salin Username">
                                     <i data-feather="copy" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
 
                             <!-- Password -->
-                            <div class="flex items-center justify-between bg-slate-900/50 rounded-lg p-2.5 border border-slate-700/50">
+                            <div class="flex items-center justify-between bg-slate-900/60 rounded-xl p-3 border border-slate-700/50 group/item hover:border-slate-600 transition-colors">
                                 <div class="flex items-center gap-3 overflow-hidden w-full">
                                     <i data-feather="key" class="text-slate-500 w-4 h-4 shrink-0"></i>
-                                    <span class="text-sm text-slate-300 font-mono tracking-wider truncate flex-1">${displayPassword}</span>
+                                    <span class="text-sm ${isRevealed ? 'text-white' : 'text-slate-400'} font-mono tracking-widest truncate flex-1 font-medium">${displayPassword}</span>
                                 </div>
                                 <div class="flex items-center gap-1 shrink-0 ml-2">
-                                    <button onclick="toggleVisibility('${item.id}')" class="text-slate-400 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded transition-colors">
+                                    <button onclick="toggleVisibility('${item.id}')" class="text-slate-500 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded-md transition-colors">
                                         <i data-feather="${eyeIcon}" class="w-3.5 h-3.5"></i>
                                     </button>
-                                    <button onclick="copyText('${item.password}', 'Kata Sandi')" class="text-slate-400 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded transition-colors" title="Salin Kata Sandi">
+                                    <button onclick="copyText('${item.password}', 'Kata Sandi')" class="text-slate-500 hover:text-indigo-400 p-1.5 hover:bg-slate-800 rounded-md transition-colors" title="Salin Kata Sandi">
                                         <i data-feather="copy" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
@@ -538,7 +617,7 @@
             });
             html += '</div>';
             contentArea.innerHTML = html;
-            feather.replace(); // Render ulang ikon
+            feather.replace(); 
         }
 
         // --- Action Handlers ---
@@ -551,7 +630,7 @@
             const btnLogin = document.getElementById('btn-login');
             
             btnLogin.disabled = true;
-            btnLogin.innerHTML = `<i data-feather="refresh-cw" class="w-[18px] h-[18px] animate-spin"></i> Memeriksa...`;
+            btnLogin.innerHTML = `<i data-feather="loader" class="w-5 h-5 animate-spin"></i> <span>Memverifikasi...</span>`;
             feather.replace();
 
             try {
@@ -563,19 +642,19 @@
                 
                 const result = await response.json();
                 if (result.status === 'success') {
-                    showToast("Login berhasil!");
+                    showToast("Akses Brankas Diberikan!");
                     loginView.classList.add('hidden');
                     dashboardView.classList.remove('hidden');
                     document.getElementById('login-password').value = ''; 
                     fetchData(); 
                 } else {
-                    showToast(result.message || "Username atau password salah!");
+                    showToast(result.message || "Kredensial tidak valid.");
                 }
             } catch (error) {
-                showToast("Gagal terhubung ke server.");
+                showToast("Koneksi ke server terputus.");
             } finally {
                 btnLogin.disabled = false;
-                btnLogin.innerHTML = `<i data-feather="log-in" class="w-[18px] h-[18px]"></i> Masuk`;
+                btnLogin.innerHTML = `<i data-feather="log-in" class="w-5 h-5"></i> <span>Akses Brankas</span>`;
                 feather.replace();
             }
         });
@@ -586,7 +665,7 @@
             dashboardView.classList.add('hidden');
             passwords = [];
             activeTab = 'Semua';
-            showToast("Berhasil logout.");
+            showToast("Anda telah keluar dengan aman.");
         });
 
         // Fetch Data
@@ -600,7 +679,7 @@
                     renderPasswords(false);
                 }
             } catch (error) {
-                showToast("Gagal memuat dari Spreadsheet.");
+                showToast("Gagal menyinkronkan data.");
                 renderPasswords(false);
             }
         }
@@ -609,10 +688,10 @@
         document.querySelectorAll('.cat-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.cat-btn').forEach(b => {
-                    b.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200";
+                    b.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200 bg-transparent shadow-none";
                 });
                 const clickedBtn = e.currentTarget;
-                clickedBtn.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-indigo-600 text-white shadow";
+                clickedBtn.className = "cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-slate-700 text-white shadow-sm";
                 category = clickedBtn.dataset.cat;
             });
         });
@@ -629,9 +708,9 @@
         function updateEditCategoryUI() {
             document.querySelectorAll('.edit-cat-btn').forEach(b => {
                 if(b.dataset.editCat === editCategory) {
-                    b.className = "edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors bg-amber-600 text-white shadow";
+                    b.className = "edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-slate-700 text-white shadow-sm";
                 } else {
-                    b.className = "edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm transition-colors text-slate-400 hover:text-slate-200";
+                    b.className = "edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-200 bg-transparent shadow-none";
                 }
             });
         }
@@ -639,13 +718,13 @@
         // Generate Password (Tambah)
         document.getElementById('btn-generate-pw').addEventListener('click', () => {
             document.getElementById('add-password').value = createRandomPassword();
-            showToast("Kata sandi kuat berhasil dibuat!");
+            showToast("Sandi kuat berhasil di-generate!");
         });
 
         // Generate Password (Edit)
         document.getElementById('btn-edit-generate-pw').addEventListener('click', () => {
             document.getElementById('edit-password').value = createRandomPassword();
-            showToast("Kata sandi kuat berhasil dibuat!");
+            showToast("Sandi kuat berhasil di-generate!");
         });
 
         function createRandomPassword() {
@@ -662,7 +741,8 @@
             e.preventDefault();
             const btnSave = document.getElementById('btn-save');
             btnSave.disabled = true;
-            btnSave.innerText = "Menyimpan...";
+            btnSave.innerHTML = `<i data-feather="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...`;
+            feather.replace();
 
             const selectedDate = addDateInput.value;
 
@@ -672,15 +752,15 @@
                 username: document.getElementById('add-username').value,
                 password: document.getElementById('add-password').value,
                 category: category,
-                createdAt: new Date(selectedDate).toISOString() // Simpan sesuai tanggal yang dipilih
+                createdAt: new Date(selectedDate).toISOString() 
             };
 
             passwords.unshift(newEntry);
             titleInput.value = '';
             document.getElementById('add-username').value = '';
             document.getElementById('add-password').value = '';
-            addDateInput.value = new Date().toISOString().split('T')[0]; // Reset ke hari ini
-            updatePresetUI(''); // reset preset active state
+            addDateInput.value = new Date().toISOString().split('T')[0];
+            updatePresetUI(''); 
             renderPasswords(false);
 
             try {
@@ -689,12 +769,13 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'add', data: newEntry })
                 });
-                showToast("Data aman tersimpan di Spreadsheet!");
+                showToast("Kredensial diamankan di Cloud.");
             } catch (error) {
-                showToast("Disimpan lokal. Gagal sinkron ke Cloud.");
+                showToast("Disimpan lokal. Sinkronisasi tertunda.");
             } finally {
                 btnSave.disabled = false;
-                btnSave.innerText = "Simpan Kredensial";
+                btnSave.innerHTML = `<i data-feather="save" class="w-4 h-4"></i> Simpan Kredensial`;
+                feather.replace();
             }
         });
 
@@ -708,7 +789,6 @@
             document.getElementById('edit-username').value = item.username;
             document.getElementById('edit-password').value = item.password;
             
-            // Format ISO ke YYYY-MM-DD untuk input type="date"
             let dateStr = new Date().toISOString().split('T')[0];
             if (item.createdAt) {
                 const d = new Date(item.createdAt);
@@ -733,7 +813,8 @@
             e.preventDefault();
             const btnUpdate = document.getElementById('btn-update');
             btnUpdate.disabled = true;
-            btnUpdate.innerText = "Menyimpan...";
+            btnUpdate.innerHTML = `<i data-feather="loader" class="w-4 h-4 animate-spin"></i>`;
+            feather.replace();
 
             const id = document.getElementById('edit-id').value;
             const updatedEntry = {
@@ -742,10 +823,9 @@
                 username: document.getElementById('edit-username').value,
                 password: document.getElementById('edit-password').value,
                 category: editCategory,
-                createdAt: new Date(editDateInput.value).toISOString() // Kirim tanggal baru
+                createdAt: new Date(editDateInput.value).toISOString()
             };
 
-            // Update UI
             const index = passwords.findIndex(p => p.id === id);
             if (index !== -1) {
                 passwords[index] = { ...passwords[index], ...updatedEntry };
@@ -754,25 +834,24 @@
             renderPasswords();
             closeEditModal();
 
-            // Kirim ke Google Sheets
             try {
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'edit', data: updatedEntry })
                 });
-                showToast("Data berhasil diupdate di Cloud!");
+                showToast("Pembaruan tersinkronisasi.");
             } catch (error) {
-                showToast("Berhasil diupdate lokal. Gagal ke Cloud.");
+                showToast("Update lokal. Gagal sinkron.");
             } finally {
                 btnUpdate.disabled = false;
-                btnUpdate.innerText = "Simpan Update";
+                btnUpdate.innerText = "Simpan Perubahan";
             }
         });
 
         // Hapus Data
         async function handleDelete(id) {
-            if(!confirm("Yakin ingin menghapus sandi ini?")) return;
+            if(!confirm("Kredensial ini akan dihapus secara permanen. Lanjutkan?")) return;
             
             passwords = passwords.filter(p => p.id !== id);
             renderPasswords();
@@ -783,9 +862,9 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'delete', id: id })
                 });
-                showToast("Data dihapus dari Spreadsheet!");
+                showToast("Kredensial berhasil dihapus.");
             } catch (error) {
-                showToast("Gagal menghapus dari Cloud.");
+                showToast("Gagal menghapus dari server.");
             }
         }
 
@@ -798,9 +877,9 @@
                 textArea.select();
                 document.execCommand("copy");
                 document.body.removeChild(textArea);
-                showToast(`${type} berhasil disalin!`);
+                showToast(`${type} disalin ke clipboard!`);
             } catch (err) {
-                showToast("Gagal menyalin teks.");
+                showToast("Akses clipboard ditolak.");
             }
         }
 
@@ -827,9 +906,9 @@
                 activeTab = clickedTab.dataset.tab;
 
                 document.querySelectorAll('.tab-btn').forEach(b => {
-                    b.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-slate-800 text-slate-400 border border-transparent hover:bg-slate-700 whitespace-nowrap";
+                    b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-slate-800/50 text-slate-400 border border-transparent hover:bg-slate-800 hover:text-slate-200 whitespace-nowrap";
                 });
-                clickedTab.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 whitespace-nowrap";
+                clickedTab.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 whitespace-nowrap shadow-[0_0_15px_rgba(99,102,241,0.1)]";
                 
                 renderPasswords();
             });
