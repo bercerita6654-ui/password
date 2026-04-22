@@ -122,11 +122,11 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-feather="lock" class="text-slate-400 w-4 h-4"></i>
                                 </div>
-                                <input type="text" id="add-title" placeholder="Pilih saran di bawah atau ketik..." required
+                                <input type="text" id="add-title" placeholder="Pilih ikon atau ketik nama..." required
                                     class="w-full bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg pl-10 pr-4 py-2.5 outline-none transition-colors text-sm">
                             </div>
-                            <!-- Preset Pilihan Situs -->
-                            <div class="flex flex-wrap gap-1.5 pt-1" id="preset-container">
+                            <!-- Preset Pilihan Situs (Icons) -->
+                            <div class="flex flex-wrap gap-2 pt-2" id="preset-container">
                                 <!-- Dirender via JS -->
                             </div>
                         </div>
@@ -295,8 +295,16 @@
         let revealedIds = new Set();
         let searchTerm = '';
         
-        // Konstanta Preset
-        const presets = ["Email", "Instagram", "Facebook", "TikTok", "Tokopedia", "Shopee"];
+        // Konstanta Preset (Menggunakan Feather Icons yang mendekati jika icon spesifik tidak ada)
+        const presets = [
+            { name: "Email", icon: "mail" },
+            { name: "Instagram", icon: "instagram" },
+            { name: "Facebook", icon: "facebook" },
+            { name: "TikTok", icon: "video" }, // Menggunakan icon video sebagai representasi tiktok
+            { name: "Tokopedia", icon: "shopping-bag" }, // Menggunakan icon tas belanja
+            { name: "Shopee", icon: "shopping-cart" }, // Menggunakan icon keranjang belanja
+            { name: "WiFi", icon: "wifi" }
+        ];
 
         // --- DOM Elements ---
         const loginView = document.getElementById('login-view');
@@ -315,8 +323,8 @@
         
         // --- Inisialisasi ---
         document.addEventListener('DOMContentLoaded', () => {
-            feather.replace();
             renderPresets();
+            feather.replace();
             // Set default date hari ini pada form tambah
             addDateInput.value = new Date().toISOString().split('T')[0];
         });
@@ -359,27 +367,40 @@
         // --- Render Functions ---
         function renderPresets() {
             presetContainer.innerHTML = presets.map(preset => `
-                <button type="button" onclick="selectPreset('${preset}')" class="preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300">
-                    ${preset}
+                <button type="button" onclick="selectPreset('${preset.name}')" data-name="${preset.name}" class="preset-btn group relative flex items-center justify-center w-[42px] h-[42px] rounded-xl border transition-all bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/10">
+                    <i data-feather="${preset.icon}" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <!-- Tooltip -->
+                    <span class="absolute -top-9 scale-0 opacity-0 transition-all rounded-md bg-slate-800 px-2.5 py-1 text-xs text-slate-200 group-hover:scale-100 group-hover:opacity-100 whitespace-nowrap border border-slate-600 z-20 shadow-xl pointer-events-none">
+                        ${preset.name}
+                    </span>
                 </button>
             `).join('');
+            feather.replace();
         }
 
-        function selectPreset(preset) {
-            titleInput.value = preset;
+        function selectPreset(presetName) {
+            titleInput.value = presetName;
+            updatePresetUI(presetName);
+        }
+
+        function updatePresetUI(val) {
+            const lowerVal = val.toLowerCase();
             document.querySelectorAll('.preset-btn').forEach(btn => {
-                if (btn.innerText.trim() === preset) {
-                    btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-indigo-500/20 border-indigo-500 text-indigo-300";
+                const name = btn.dataset.name.toLowerCase();
+                if (name === lowerVal) {
+                    // State aktif
+                    btn.classList.remove('bg-slate-900', 'border-slate-700', 'text-slate-400', 'hover:border-indigo-500', 'hover:text-indigo-400', 'hover:bg-indigo-500/10');
+                    btn.classList.add('bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'shadow-[0_0_10px_rgba(99,102,241,0.2)]');
                 } else {
-                    btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300";
+                    // State inaktif
+                    btn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-400', 'hover:border-indigo-500', 'hover:text-indigo-400', 'hover:bg-indigo-500/10');
+                    btn.classList.remove('bg-indigo-500/20', 'border-indigo-500', 'text-indigo-400', 'shadow-[0_0_10px_rgba(99,102,241,0.2)]');
                 }
             });
         }
 
-        titleInput.addEventListener('input', () => {
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.className = "preset-btn text-[11px] px-2.5 py-1 rounded-full border transition-colors bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/50 hover:text-indigo-300";
-            });
+        titleInput.addEventListener('input', (e) => {
+            updatePresetUI(e.target.value);
         });
 
         function renderPasswords(isLoading = false) {
@@ -630,7 +651,7 @@
             document.getElementById('add-username').value = '';
             document.getElementById('add-password').value = '';
             addDateInput.value = new Date().toISOString().split('T')[0]; // Reset ke hari ini
-            renderPresets();
+            updatePresetUI(''); // reset preset active state
             renderPasswords(false);
 
             try {
