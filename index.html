@@ -207,13 +207,14 @@
                                 <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nama Akses</label>
                                 <div class="relative group">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <i data-feather="lock" class="text-slate-400 dark:text-slate-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
+                                        <i data-feather="edit-3" class="text-slate-400 dark:text-slate-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 w-4 h-4 transition-colors"></i>
                                     </div>
-                                    <input type="text" id="add-title" placeholder="Pilih ikon atau ketik nama..." required
+                                    <input type="text" id="add-title" placeholder="Ketik nama akses..." required
                                         class="w-full bg-white/60 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-white">
                                 </div>
+                                <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wider ml-1 mt-2 inline-block">Pilih Ikon (Opsional)</label>
                                 <!-- Preset Pilihan Situs (Icons) -->
-                                <div class="flex flex-wrap gap-2 pt-2" id="preset-container">
+                                <div class="flex flex-wrap gap-2 pt-1" id="preset-container">
                                     <!-- Dirender via JS -->
                                 </div>
                             </div>
@@ -313,7 +314,7 @@
                         <button type="button" data-edit-cat="Pribadi" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all bg-amber-500 text-white shadow-sm border border-transparent">
                             <i data-feather="home" class="w-4 h-4"></i> Pribadi
                         </button>
-                        <button type="button" data-edit-cat="Kantor" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 border border-transparent">
+                        <button type="button" data-edit-cat="Kantor" class="edit-cat-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent shadow-none border border-transparent">
                             <i data-feather="briefcase" class="w-4 h-4"></i> Kantor
                         </button>
                     </div>
@@ -323,13 +324,14 @@
                     <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nama Akses</label>
                     <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                            <i data-feather="lock" class="text-slate-400 dark:text-slate-500 group-focus-within:text-amber-500 dark:group-focus-within:text-amber-400 w-4 h-4 transition-colors"></i>
+                            <i data-feather="edit-3" class="text-slate-400 dark:text-slate-500 group-focus-within:text-amber-500 dark:group-focus-within:text-amber-400 w-4 h-4 transition-colors"></i>
                         </div>
                         <input type="text" id="edit-title" required
                             class="w-full bg-white/60 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-3 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-white">
                     </div>
+                    <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wider ml-1 mt-2 inline-block">Pilih Ikon Akses</label>
                     <!-- Preset Pilihan Situs (Icons) di Modal Edit -->
-                    <div class="flex flex-wrap gap-2 pt-2" id="edit-preset-container">
+                    <div class="flex flex-wrap gap-2 pt-1" id="edit-preset-container">
                         <!-- Dirender via JS -->
                     </div>
                 </div>
@@ -415,7 +417,11 @@
         let revealedIds = new Set();
         let searchTerm = '';
         
+        let selectedIcon = 'globe'; // Icon untuk data baru
+        let editSelectedIcon = 'globe'; // Icon untuk mode edit
+
         const presets = [
+            { name: "Lainnya", icon: "globe" },
             { name: "Email", icon: "mail" },
             { name: "Instagram", icon: "instagram" },
             { name: "Facebook", icon: "facebook" },
@@ -491,29 +497,27 @@
             });
         }
 
+        // Fungsi fallback jika ikon tidak ditemukan saat fetch dari db lama
         function getIconForTitle(title) {
             if (!title) return 'globe';
             const lowerTitle = title.toLowerCase();
-            
             for (const preset of presets) {
-                if (lowerTitle.includes(preset.name.toLowerCase())) {
+                if (lowerTitle.includes(preset.name.toLowerCase()) && preset.name !== "Lainnya") {
                     return preset.icon;
                 }
             }
-            
             if (lowerTitle.includes('google') || lowerTitle.includes('gmail')) return 'mail';
             if (lowerTitle.includes('twitter') || lowerTitle.includes('x')) return 'twitter';
             if (lowerTitle.includes('github')) return 'github';
             if (lowerTitle.includes('linkedin')) return 'linkedin';
             if (lowerTitle.includes('youtube')) return 'youtube';
-            
             return 'globe';
         }
 
         // --- Render Functions (ADD FORM) ---
         function renderPresets() {
             presetContainer.innerHTML = presets.map(preset => `
-                <button type="button" onclick="selectPreset('${preset.name}')" data-name="${preset.name}" class="preset-btn group relative flex items-center justify-center w-[46px] h-[46px] rounded-xl border transition-all duration-300 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:-translate-y-1 hover:shadow-lg">
+                <button type="button" onclick="selectPreset('${preset.icon}', '${preset.name}')" data-icon="${preset.icon}" class="preset-btn group relative flex items-center justify-center w-[44px] h-[44px] rounded-xl border transition-all duration-300 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:-translate-y-1 hover:shadow-lg">
                     <i data-feather="${preset.icon}" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
                     <!-- Tooltip -->
                     <span class="absolute -top-10 scale-0 opacity-0 transition-all duration-200 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 group-hover:scale-100 group-hover:opacity-100 whitespace-nowrap border border-slate-700 z-20 shadow-xl pointer-events-none">
@@ -522,18 +526,24 @@
                 </button>
             `).join('');
             if (typeof feather !== 'undefined') feather.replace();
+            updatePresetUI();
         }
 
-        function selectPreset(presetName) {
-            titleInput.value = presetName;
-            updatePresetUI(presetName);
+        function selectPreset(iconName, presetName) {
+            selectedIcon = iconName;
+            
+            // Opsional: Isi otomatis kolom nama jika masih kosong atau jika isinya masih berupa nama preset lain
+            const isCurrentTitlePreset = presets.some(p => p.name === titleInput.value);
+            if (!titleInput.value || isCurrentTitlePreset) {
+                titleInput.value = presetName === 'Lainnya' ? '' : presetName;
+            }
+            
+            updatePresetUI();
         }
 
-        function updatePresetUI(val) {
-            const lowerVal = val.toLowerCase();
+        function updatePresetUI() {
             document.querySelectorAll('.preset-btn').forEach(btn => {
-                const name = btn.dataset.name.toLowerCase();
-                if (name === lowerVal) {
+                if (btn.dataset.icon === selectedIcon) {
                     btn.classList.remove('bg-white', 'dark:bg-slate-800/50', 'border-slate-200', 'dark:border-slate-700/50', 'text-slate-500', 'dark:text-slate-400');
                     btn.classList.add('bg-indigo-100', 'dark:bg-indigo-500/20', 'border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-[0_0_15px_rgba(99,102,241,0.2)]', '-translate-y-1');
                 } else {
@@ -543,14 +553,10 @@
             });
         }
 
-        titleInput.addEventListener('input', (e) => {
-            updatePresetUI(e.target.value);
-        });
-
         // --- Render Functions (EDIT FORM) ---
         function renderEditPresets() {
             editPresetContainer.innerHTML = presets.map(preset => `
-                <button type="button" onclick="selectEditPreset('${preset.name}')" data-edit-name="${preset.name}" class="edit-preset-btn group relative flex items-center justify-center w-[46px] h-[46px] rounded-xl border transition-all duration-300 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:border-amber-400 dark:hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:-translate-y-1 hover:shadow-lg">
+                <button type="button" onclick="selectEditPreset('${preset.icon}')" data-edit-icon="${preset.icon}" class="edit-preset-btn group relative flex items-center justify-center w-[44px] h-[44px] rounded-xl border transition-all duration-300 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-500 dark:text-slate-400 hover:border-amber-400 dark:hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:-translate-y-1 hover:shadow-lg">
                     <i data-feather="${preset.icon}" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
                     <!-- Tooltip -->
                     <span class="absolute -top-10 scale-0 opacity-0 transition-all duration-200 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 group-hover:scale-100 group-hover:opacity-100 whitespace-nowrap border border-slate-700 z-20 shadow-xl pointer-events-none">
@@ -561,16 +567,15 @@
             if (typeof feather !== 'undefined') feather.replace();
         }
 
-        function selectEditPreset(presetName) {
-            editTitleInput.value = presetName;
-            updateEditPresetUI(presetName);
+        function selectEditPreset(iconName) {
+            editSelectedIcon = iconName;
+            updateEditPresetUI();
+            // Saat di modal edit, mengubah ikon TIDAK mengubah teks title nya.
         }
 
-        function updateEditPresetUI(val) {
-            const lowerVal = val.toLowerCase();
+        function updateEditPresetUI() {
             document.querySelectorAll('.edit-preset-btn').forEach(btn => {
-                const name = btn.dataset.editName.toLowerCase();
-                if (name === lowerVal) {
+                if (btn.dataset.editIcon === editSelectedIcon) {
                     btn.classList.remove('bg-white', 'dark:bg-slate-800/50', 'border-slate-200', 'dark:border-slate-700/50', 'text-slate-500', 'dark:text-slate-400');
                     btn.classList.add('bg-amber-100', 'dark:bg-amber-500/20', 'border-amber-500', 'text-amber-600', 'dark:text-amber-400', 'shadow-[0_0_15px_rgba(245,158,11,0.2)]', '-translate-y-1');
                 } else {
@@ -580,9 +585,6 @@
             });
         }
 
-        editTitleInput.addEventListener('input', (e) => {
-            updateEditPresetUI(e.target.value);
-        });
 
         // --- Render List Passwords ---
         function renderPasswords(isLoading = false) {
@@ -651,7 +653,8 @@
                     ? 'bg-gradient-to-br from-amber-100 to-orange-100 border-amber-200 text-amber-600 dark:from-amber-500/20 dark:to-orange-500/20 dark:border-amber-500/30 dark:text-amber-400'
                     : 'bg-gradient-to-br from-indigo-100 to-violet-100 border-indigo-200 text-indigo-600 dark:from-indigo-500/20 dark:to-violet-500/20 dark:border-indigo-500/30 dark:text-indigo-400';
 
-                const titleIcon = getIconForTitle(item.title);
+                // Menggunakan ikon dari data (jika ada), atau fallback menebak dari teks judulnya
+                const titleIcon = item.icon || getIconForTitle(item.title);
 
                 html += `
                     <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.5)] group border hover:border-indigo-300 dark:hover:border-indigo-500/30 relative overflow-hidden">
@@ -875,6 +878,7 @@
                 username: document.getElementById('add-username').value,
                 password: document.getElementById('add-password').value,
                 category: category,
+                icon: selectedIcon, // Menyimpan ikon secara terpisah ke data
                 createdAt: new Date(selectedDate).toISOString() 
             };
 
@@ -883,7 +887,10 @@
             document.getElementById('add-username').value = '';
             document.getElementById('add-password').value = '';
             addDateInput.value = new Date().toISOString().split('T')[0];
-            updatePresetUI(''); 
+            
+            // Reset ikon terpilih kembali ke globe
+            selectedIcon = 'globe';
+            updatePresetUI(); 
             renderPasswords(false);
 
             try {
@@ -923,7 +930,10 @@
             
             editCategory = item.category || 'Pribadi';
             updateEditCategoryUI();
-            updateEditPresetUI(item.title); // Update state logo di menu edit
+
+            // Set ikon yg ada di database / fallback, lalu highlight UI-nya
+            editSelectedIcon = item.icon || getIconForTitle(item.title);
+            updateEditPresetUI(); 
             
             editModal.classList.remove('hidden');
         }
@@ -947,6 +957,7 @@
                 username: document.getElementById('edit-username').value,
                 password: document.getElementById('edit-password').value,
                 category: editCategory,
+                icon: editSelectedIcon, // Memperbarui ikon
                 createdAt: new Date(editDateInput.value).toISOString()
             };
 
